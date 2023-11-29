@@ -1,0 +1,20 @@
+syntax = "v1"
+
+type Response {
+	Message string `json:"message"`
+}
+type RoomReq {
+	RoomID string `form:"room_id"`
+}
+@server (
+	prefix: /v1/bot
+	group:  bot
+)
+
+service bot-api {
+	@handler JoinRoomHandler
+	post /join (RoomReq) returns (Response)
+
+	@handler LeaveRoomHandler
+	delete /leave (RoomReq) returns  (Response)
+}
