@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 	"sync/atomic"
-	"time"
 
 	"github.com/pion/rtp"
 	"github.com/pion/webrtc/v3/pkg/media"
@@ -78,77 +77,52 @@ func (a *AudioEngine) MediaOut() <-chan media.Sample {
 	return a.mediaOut
 }
 
-func (a *AudioEngine) Start() {
-	fmt.Println("Starting audio engine")
-	go a.decode()
-}
+// // Pause stops the text to speech inference and simply drops incoming packets
+// func (a *AudioEngine) Pause() {
+// 	fmt.Println("Pausing tts")
+// 	a.shouldInfer.Swap(false)
+// }
 
-// Pause stops the text to speech inference and simply drops incoming packets
-func (a *AudioEngine) Pause() {
-	fmt.Println("Pausing tts")
-	a.shouldInfer.Swap(false)
-}
+// // Unpause restarts the text to speech inference
+// func (a *AudioEngine) Unpause() {
+// 	fmt.Println("Unpausing tts")
+// 	a.shouldInfer.Swap(true)
+// }
 
-// Unpause restarts the text to speech inference
-func (a *AudioEngine) Unpause() {
-	fmt.Println("Unpausing tts")
-	a.shouldInfer.Swap(true)
-}
+// // Encode takes in raw f32le pcm, encodes it into opus RTP packets and sends those over the rtpOut chan
+// func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate int) error {
+// 	opusFrames, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate)
+// 	if err != nil {
+// 		fmt.Println(err, "error encoding pcm")
+// 	}
 
-// Encode takes in raw f32le pcm, encodes it into opus RTP packets and sends those over the rtpOut chan
-func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate int) error {
-	opusFrames, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate)
-	if err != nil {
-		fmt.Println(err, "error encoding pcm")
-	}
+// 	go a.sendMedia(opusFrames)
 
-	go a.sendMedia(opusFrames)
+// 	return nil
+// }
 
-	return nil
-}
+// // sendMedia turns opus frames into media samples and sends them on the channel
+// func (a *AudioEngine) sendMedia(frames []OpusFrame) {
+// 	for _, f := range frames {
+// 		sample := convertOpusToSample(f)
+// 		a.mediaOut <- sample
+// 		// this is important to properly pace the samples
+// 		time.Sleep(time.Millisecond * 20)
+// 	}
 
-// sendMedia turns opus frames into media samples and sends them on the channel
-func (a *AudioEngine) sendMedia(frames []OpusFrame) {
-	for _, f := range frames {
-		sample := convertOpusToSample(f)
-		a.mediaOut <- sample
-		// this is important to properly pace the samples
-		time.Sleep(time.Millisecond * 20)
-	}
+// 	// start inferring audio again
+// 	a.Unpause()
+// }
 
-	// start inferring audio again
-	a.Unpause()
-}
-
-func convertOpusToSample(frame OpusFrame) media.Sample {
-	return media.Sample{
-		Data:               frame.Data,
-		PrevDroppedPackets: 0, // FIXME support dropping packets
-		Duration:           time.Millisecond * 20,
-	}
-}
+// func convertOpusToSample(frame OpusFrame) media.Sample {
+// 	return media.Sample{
+// 		Data:               frame.Data,
+// 		PrevDroppedPackets: 0, // FIXME support dropping packets
+// 		Duration:           time.Millisecond * 20,
+// 	}
+// }
 
 // decode reads over the in channel in a loop, decodes the RTP packets to raw PCM and sends the data on another channel
-func (a *AudioEngine) decode() {
-	for {
-		pkt, ok := <-a.rtpIn
-		if !ok {
-			fmt.Println("rtpIn channel closed...")
-			return
-		}
-		if !a.shouldInfer.Load() {
-			continue
-		}
-		if a.firstTimeStamp == 0 {
-			fmt.Println("Resetting timestamp bc firstTimeStamp is 0...  ", pkt.Timestamp)
-			a.firstTimeStamp = pkt.Timestamp
-		}
-
-		if _, err := a.decodePacket(pkt); err != nil {
-			fmt.Println(err, "error decoding opus packet ")
-		}
-	}
-}
 
 func (a *AudioEngine) decodePacket(pkt *rtp.Packet) (int, error) {
 	_, err := a.dec.Decode(pkt.Payload, a.pcm)

@@ -2,7 +2,10 @@ module github.com/GuardedTalk/bot
 
 go 1.20
 
+replace github.com/ggerganov/whisper.cpp/bindings/go => ./whisper.cpp/bindings/go
+
 require (
+	github.com/ggerganov/whisper.cpp/bindings/go v0.0.0-20231128134258-6559b538e5e0
 	github.com/livekit/server-sdk-go v1.1.1
 	github.com/pion/webrtc/v3 v3.2.23
 	github.com/zeromicro/go-zero v1.6.0
@@ -54,7 +57,7 @@ require (
 	github.com/pion/mdns v0.0.8 // indirect
 	github.com/pion/randutil v0.1.0 // indirect
 	github.com/pion/rtcp v1.2.12 // indirect
-	github.com/pion/rtp v1.8.3 // indirect
+	github.com/pion/rtp v1.8.3
 	github.com/pion/sctp v1.8.8 // indirect
 	github.com/pion/sdp/v3 v3.0.6 // indirect
 	github.com/pion/srtp/v2 v2.0.18 // indirect

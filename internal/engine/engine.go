@@ -39,15 +39,35 @@ type Engine struct {
 	// By inferring on old and new audio we can help smooth out cross word boundaries
 	window               []float32
 	lastHandledTimestamp uint32
+	wp                   *WhisperModel
+	isSpeaking           bool
+}
 
-	isSpeaking bool
+type Transcriber interface {
+	Transcribe(audioData []float32) (Transcription, error)
+}
+
+type TranscriptionSegment struct {
+	StartTimestamp uint32 `json:"startTimestamp"`
+	EndTimestamp   uint32 `json:"endTimestamp"`
+	Text           string `json:"text"`
+}
+
+type Transcription struct {
+	From           uint32
+	Transcriptions []TranscriptionSegment
 }
 
 func New() (*Engine, error) {
+	wp, err := NewWhisperModel("./models/ggml-base.en.bin")
+	if err != nil {
+		panic(err)
+	}
 	return &Engine{
 		window:               make([]float32, 0, windowSize),
 		pcmWindow:            make([]float32, 0, pcmWindowSize),
 		lastHandledTimestamp: 0,
+		wp:                   wp,
 		isSpeaking:           false,
 	}, nil
 }
@@ -103,6 +123,11 @@ func (e *Engine) writeVAD(pcm []float32, timestamp uint32) {
 		} else if !isSpeaking && e.isSpeaking {
 			fmt.Println("JUST STOPPED SPEAKING")
 			e.window = append(e.window, e.pcmWindow...)
+			transcript, err := e.wp.Transcribe(e.window)
+			if err != nil {
+				fmt.Println("----------->", err)
+			}
+			fmt.Println("----------->", transcript.Transcriptions)
 
 		} else if !isSpeaking && !e.isSpeaking {
 			if len(e.window) != 0 {
