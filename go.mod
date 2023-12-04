@@ -2,10 +2,8 @@ module github.com/GuardedTalk/bot
 
 go 1.20
 
-replace github.com/ggerganov/whisper.cpp/bindings/go => ./whisper.cpp/bindings/go
-
 require (
-	github.com/ggerganov/whisper.cpp/bindings/go v0.0.0-20231128134258-6559b538e5e0
+	github.com/ggerganov/whisper.cpp/bindings/go v0.0.0-20230716200034-399846572185
 	github.com/livekit/server-sdk-go v1.1.1
 	github.com/pion/webrtc/v3 v3.2.23
 	github.com/zeromicro/go-zero v1.6.0

@@ -26,8 +26,19 @@ endif
 
 run-whisper-cpp: whisper-cpp-pre-reqs
 	@echo "running client with whisper.cpp backend..."
-	@C_INCLUDE_PATH=${INCLUDE_PATH} LIBRARY_PATH=${LIBRARY_PATH} go run bot.go
+	@C_INCLUDE_PATH=${INCLUDE_PATH} LIBRARY_PATH=${LIBRARY_PATH}  go run bot.go
 
+build-whisper-cpp: 
+	@echo "running client with whisper.cpp backend..."
+	@C_INCLUDE_PATH=${INCLUDE_PATH} LIBRARY_PATH=${LIBRARY_PATH}  go build ${BUILD_FLAGS} -o ./
 
 debug: whisper-cpp-pre-reqs
 	@C_INCLUDE_PATH=${INCLUDE_PATH} LIBRARY_PATH=${LIBRARY_PATH} PKG_CONFIG_PATH= go run cmd/whisper.cpp/main.go --debug=true
+
+
+build-whisper-lib:
+	@${MAKE} -C ./whisper.cpp libwhisper.a
+
+fetch-model:
+	@${MAKE} -C ./whisper.cpp base.en
+	@cp $(WHISPER_DIR)/models/ggml-$(MODEL_NAME).bin $(MODELS_DIR)
