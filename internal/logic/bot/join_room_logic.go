@@ -29,7 +29,7 @@ func NewJoinRoomLogic(ctx context.Context, svcCtx *svc.ServiceContext) *JoinRoom
 	}
 }
 
-func (l *JoinRoomLogic) JoinRoom(req *types.RoomReq) (resp *types.Response, err error) {
+func (l *JoinRoomLogic) JoinRoom(req *types.RoomReq) (resp *types.BaseMsgResp, err error) {
 	host := "ws://localhost:7880"
 	apiKey := "APIE2J6mepSno7o"
 	apiSecret := "rbWwpd5OpND3qz5UtufNZviMdPs6CbhBxGZXehBLc7b"

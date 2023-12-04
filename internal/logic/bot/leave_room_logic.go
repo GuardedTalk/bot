@@ -23,7 +23,7 @@ func NewLeaveRoomLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LeaveRo
 	}
 }
 
-func (l *LeaveRoomLogic) LeaveRoom(req *types.RoomReq) (resp *types.Response, err error) {
+func (l *LeaveRoomLogic) LeaveRoom(req *types.RoomReq) (resp *types.BaseMsgResp, err error) {
 	// todo: add your logic here and delete this line
 	l.svcCtx.Bot[req.RoomID].Disconnect()
 	return

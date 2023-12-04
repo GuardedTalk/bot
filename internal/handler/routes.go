@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	bot "github.com/GuardedTalk/bot/internal/handler/bot"
+	jwt "github.com/GuardedTalk/bot/internal/handler/jwt"
 	"github.com/GuardedTalk/bot/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -25,5 +26,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 		},
 		rest.WithPrefix("/v1/bot"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/",
+				Handler: jwt.JwtGeneratedHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/v1/jwt"),
 	)
 }

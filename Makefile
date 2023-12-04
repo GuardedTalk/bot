@@ -42,3 +42,7 @@ build-whisper-lib:
 fetch-model:
 	@${MAKE} -C ./whisper.cpp base.en
 	@cp $(WHISPER_DIR)/models/ggml-$(MODEL_NAME).bin $(MODELS_DIR)
+
+gen-api:
+	goctl api go -api bot.api -dir ./ -style go_zero
+	@echo "Generate API files successfully"

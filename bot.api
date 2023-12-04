@@ -1,11 +1,18 @@
 syntax = "v1"
 
-type Response {
-	Message string `json:"message"`
+// The basic response without data
+type BaseMsgResp {
+	// Error code | 错误代码
+	Code int `json:"code"`
+
+	// Message | 提示信息
+	Msg string `json:"msg"`
 }
+
 type RoomReq {
 	RoomID string `form:"room_id"`
 }
+
 @server (
 	prefix: /v1/bot
 	group:  bot
@@ -13,8 +20,34 @@ type RoomReq {
 
 service bot-api {
 	@handler JoinRoomHandler
-	post /join (RoomReq) returns (Response)
+	post /join (RoomReq) returns (BaseMsgResp)
 
 	@handler LeaveRoomHandler
-	delete /leave (RoomReq) returns  (Response)
+	delete /leave (RoomReq) returns  (BaseMsgResp)
+}
+
+type JwtGenerateReq {
+	RoomName string `form:"roomName"`
+	Name     string `form:"name"`
+	Identity string `form:"identity"`
+}
+
+type JwtInfo {
+	AccessToken string `json:"accessToken"`
+}
+
+type JwtGenerateResp {
+	BaseMsgResp
+	Data JwtInfo `json:"data"`
+}
+
+@server (
+	prefix: /v1/jwt
+	group:  jwt
+)
+
+service bot-api {
+	@handler JwtGeneratedHandler
+	get / (JwtGenerateReq) returns (JwtInfo)
+
 }
